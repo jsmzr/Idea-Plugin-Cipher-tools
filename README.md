@@ -7,4 +7,4 @@ A simple encryption and decryption, encoding and decoding tool plugin. Support A
 - AES、RSA、DES、3DES
 - base64
 
-![renderings](https://github.com/jiurongzhao/Idea-Plugin-Cipher-tools/resources/img/Renderings.png)
+![renderings](https://github.com/jiurongzhao/Idea-Plugin-Cipher-tools/blob/master/resources/img/Renderings.png)
