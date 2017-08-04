@@ -8,7 +8,7 @@ A simple encryption and decryption, encoding and decoding tool plugin. Support A
 - base64
 - HmacMD5/HmacSha1/HmacSha1
 
-![renderings](https:/github.com/jiurongzhao/Idea-Plugin-Cipher-tools/blob/master/resources/img/Renderings.png)
+![renderings](/resources/img/Renderings.png)
 
 #### 开发流程
 
