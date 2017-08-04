@@ -1,7 +1,7 @@
 <idea-plugin>
-  <id>com.jsmzr.cipher.component.CipherTools</id>
+  <id>top.jsmzr.cipher.component.CipherTools</id>
   <name>Cipher tools</name>
-  <version>1.0</version>
+  <version>1.1</version>
 
   <description><![CDATA[
       This is an encryption and decryption tool,Supports symmetric encryption, asymmetric encryption, message digest and base64 encoding and decoding.
@@ -9,13 +9,19 @@
       E.g:RSA AES DES 3DES MD5 SHA-1 SHA-256 base64
       <br/>
       more:<br/>
-      <a href="https://gitgub.com">      github</a>
+      <a href="https://github.com/jiurongzhao/Idea-Plugin-Cipher-tools">github</a>
     ]]></description>
 
-  <!--<change-notes><![CDATA[-->
-  <!---->
-  <!--]]>-->
-  <!--</change-notes>-->
+  <vendor>
+
+  </vendor>
+
+  <change-notes><![CDATA[
+  <ul>
+    <li>add hmac  </li>
+  </ul>
+  ]]>
+  </change-notes>
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
   <idea-version since-build="145.0"/>

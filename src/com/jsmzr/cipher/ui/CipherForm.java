@@ -7,6 +7,7 @@ import com.jsmzr.cipher.model.CipherBaseModel;
 import com.jsmzr.cipher.model.CipherModel;
 import com.jsmzr.cipher.util.Base64Util;
 import com.jsmzr.cipher.util.CommonsCipherUtil;
+import com.jsmzr.cipher.util.HmacUtil;
 import com.jsmzr.cipher.util.MessageDigestUtil;
 
 import javax.swing.*;
@@ -28,7 +29,7 @@ public class CipherForm extends JPanel{
     private final JLabel ivLabel = new JLabel("iv:");
     private final JPanel centerSonJP;
 
-    private final static String[] supportCipher = new String[] {
+    private final static String[] supportED = new String[]{
             "AES/CBC/NoPadding(128)", //( 128) ctl 8*
             "AES/CBC/PKCS5Padding(128)", //( 128) key 16 iv 16   --
             "AES/ECB/NoPadding(128)",// (128)
@@ -40,15 +41,26 @@ public class CipherForm extends JPanel{
             "DESede/CBC/NoPadding(168)",// (168)
             "DESede/CBC/PKCS5Padding(168)",// (168) key 24 iv 8
             "DESede/ECB/NoPadding(168)",// (168)
-            "DESede/ECB/PKCS5Padding(168)",
+            "DESede/ECB/PKCS5Padding(168)"
+    };
+    private final static String[] supportMD = new String[] {
             "MD5",
             "SHA-1",
-            "SHA-256",
+            "SHA-256"
+    };
+    private final static String[] supportBS = new String[] {
             "BASE64"
     };
+    private final static String[] supportHm = new String[] {
+            "HmacMD5",
+            "HmacSHA1",
+            "HmacSHA256"
+    };
+
+    private final String[] supportCipher;
     private final Map<String, CipherBaseModel> cipherModels;
 
-    private final JComboBox cipherType = new ComboBox(new DefaultComboBoxModel(supportCipher));
+    private final JComboBox cipherType;// = new ComboBox(new DefaultComboBoxModel(supportCipher));
 
     private final JTextField cipherKey = new JTextField();
     private final JTextField cipherIv = new JTextField();
@@ -63,7 +75,6 @@ public class CipherForm extends JPanel{
     private static String histInputKey;
     private static String histInputIv;
     private static String histOption;
-    private static String currCipherType;
 
     private static String histInput;
     private static String histOutput;
@@ -72,13 +83,28 @@ public class CipherForm extends JPanel{
     public CipherForm() {
         super(new FormLayout("f:d:g 10dlu 150dlu 10dlu f:d:g", "f:d:g"));
         cipherModels = new HashMap<>();
-        for (int index=0,size=supportCipher.length; index < size-4; index++) {
-            cipherModels.put(supportCipher[index], new CipherModel(supportCipher[index]));
+        supportCipher = new String[supportBS.length + supportED.length + supportHm.length + supportMD.length];
+        for (int index=0,size=supportED.length; index < size; index++) {
+            cipherModels.put(supportED[index], new CipherModel(supportED[index]));
+            supportCipher[index] = supportED[index];
         }
-        cipherModels.put("MD5", new CipherBaseModel(2));
-        cipherModels.put("SHA-1", new CipherBaseModel(2));
-        cipherModels.put("SHA-256", new CipherBaseModel(2));
-        cipherModels.put("BASE64", new CipherBaseModel(3));
+        for (int index=0, size=supportMD.length; index < size; index++) {
+            cipherModels.put(supportMD[index], new CipherBaseModel(2));
+            supportCipher[index + supportED.length] = supportMD[index];
+        }
+        for (int index=0, size=supportHm.length; index < size; index++) {
+            cipherModels.put(supportHm[index], new CipherBaseModel(4));
+            supportCipher[index + supportED.length + supportMD.length] = supportHm[index];
+        }
+        for (int index=0, size=supportBS.length; index < size; index++) {
+            cipherModels.put(supportBS[index], new CipherBaseModel(3));
+            supportCipher[index + supportED.length + supportMD.length + supportHm.length] = supportBS[index];
+        }
+//        supportCipher = tmpSupportCipher;
+        for (String tmps : supportCipher) {
+            System.out.println(tmps);
+        }
+        cipherType = new ComboBox(new DefaultComboBoxModel(supportCipher));
         this.cc.insets.set(2, 2, 2, 2);
         JPanel inJP = new JPanel(new FormLayout("f:d:g", "p 5dlu f:d:g"));
         JPanel centerJP = new JPanel(new FormLayout("f:d:g", "p 5dlu 20dlu 5dlu 45dlu 5dlu f:d:g"));
@@ -115,8 +141,6 @@ public class CipherForm extends JPanel{
         outJP.add(this.outLabel, this.cc.xy(1, 1));
         outJP.add(new JScrollPane(this.output), this.cc.xy(1, 3));
 
-//        showOptional(true, false, false);
-        currCipherType = "MD5";
 
         this.add(inJP, this.cc.xy(1, 1));
         this.add(centerJP, this.cc.xy(3, 1));
@@ -155,18 +179,26 @@ public class CipherForm extends JPanel{
                 }
                 String currOption = (String)cipherType.getSelectedItem();
                 CipherBaseModel cb = cipherModels.get(currOption);
-                if (cb.getType() == 1) {
-                    if ("CBC".equals(((CipherModel)cb).getWork())) {
-                        showOptional(true, true, true);
-                    }else{
-                        showOptional(true, false, true);
-                    }
-                }else if(cb.getType() == 2){
-                    showOptional(false, false, false);
-                }else {
-                    showOptional(false, false, true);
+                switch (cb.getType()){
+                    case 1:
+                        if ("CBC".equals(((CipherModel)cb).getWork())) {
+                            showOptional(true, true, true);
+                        }else{
+                            showOptional(true, false, true);
+                        }
+                        break;
+                    case 2:
+                        showOptional(false, false, false);
+                        break;
+                    case 3:
+                        showOptional(false, false, true);
+                        break;
+                    case 4:
+                        showOptional(true, false, false);
+                        break;
+                    default:
+                        break;
                 }
-
             }
         });
 
@@ -187,22 +219,23 @@ public class CipherForm extends JPanel{
 
     private void buttonAction(boolean isEncode) {
         String content = isEncode ? input.getText() : output.getText();
-        String currKey = cipherIv.getText();
-        currKey = currKey == null ? null : "".equals(currKey = currKey.trim()) ? null : currKey;
+        String currKey = cipherKey.getText();
+        currKey = currKey == null || "".equals(currKey = currKey.trim()) ? null : currKey;
         String currIv = cipherIv.getText();
-        currIv = currIv == null ? null : "".equals(currIv = currIv.trim()) ? null : currIv;
+        currIv = currIv == null || "".equals(currIv = currIv.trim()) ? null : currIv;
         String currOutput = !isEncode ? input.getText() : output.getText();
-        currOutput = currOutput == null ? null : "".equals(currOutput=currOutput.trim()) ? null : currOutput;
+        currOutput = currOutput == null || "".equals(currOutput=currOutput.trim()) ? null : currOutput;
 
         if (content == null || "".equals(content.trim())) {
             return;
         }
         content = content.trim();
-        if ((isEncode ^ histBtn) && currCipherType.equals(histOption) &&
+        String currOption = (String)cipherType.getSelectedItem();
+        if (!(isEncode ^ histBtn) && currOption.equals(histOption) &&
                 content.equals(histInputText) &&
                 (histInputKey != null? histInputKey.equals(currKey) : histInputKey == currKey) &&
                 (histInputIv != null ? histInputIv.equals(currIv) : histInputIv == currIv) &&
-                histOutput != null) {
+                (isEncode ? histOutput != null : histInput != null)) {
             if (isEncode && !histOutput.equals(currOutput)) {
                 output.setText(histOutput);
             }else if(!isEncode && !histInput.equals(currOutput)) {
@@ -210,7 +243,7 @@ public class CipherForm extends JPanel{
             }
             return;
         }
-        String currOption = (String)cipherType.getSelectedItem();
+
         String result = null;
         CipherBaseModel cb = cipherModels.get(currOption);
         try {
@@ -227,6 +260,9 @@ public class CipherForm extends JPanel{
                     result = isEncode ?
                             Base64Util.encode(content) :
                             Base64Util.decode(content);
+                    break;
+                case 4:
+                    result = HmacUtil.encrypt(currOption, content, currKey);
                     break;
                 default:
                     result = "";
