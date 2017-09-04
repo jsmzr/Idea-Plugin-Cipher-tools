@@ -7,6 +7,7 @@ A simple encryption and decryption, encoding and decoding tool plugin. Support A
 - AES/RSA/DES/3DES
 - base64
 - HmacMD5/HmacSha1/HmacSha1
+- RSA
 
 ![renderings](/resources/img/Renderings.png)
 
