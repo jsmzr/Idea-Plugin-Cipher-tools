@@ -5,10 +5,7 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jsmzr.cipher.model.CipherBaseModel;
 import com.jsmzr.cipher.model.CipherModel;
-import com.jsmzr.cipher.util.Base64Util;
-import com.jsmzr.cipher.util.CommonsCipherUtil;
-import com.jsmzr.cipher.util.HmacUtil;
-import com.jsmzr.cipher.util.MessageDigestUtil;
+import com.jsmzr.cipher.util.*;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -29,7 +26,10 @@ public class CipherForm extends JPanel{
     private final JLabel ivLabel = new JLabel("iv:");
     private final JPanel centerSonJP;
 
-    private final static String[] supportED = new String[]{
+    private final static String PRIVARE_KEY = "pri:";
+    private final static String PUBLIC_KEY = "pub:";
+
+    private final static String[] SUPPORT_ED = new String[]{
             "AES/CBC/NoPadding(128)", //( 128) ctl 8*
             "AES/CBC/PKCS5Padding(128)", //( 128) key 16 iv 16   --
             "AES/ECB/NoPadding(128)",// (128)
@@ -43,18 +43,21 @@ public class CipherForm extends JPanel{
             "DESede/ECB/NoPadding(168)",// (168)
             "DESede/ECB/PKCS5Padding(168)"
     };
-    private final static String[] supportMD = new String[] {
+    private final static String[] SUPPORT_MD = new String[] {
             "MD5",
             "SHA-1",
             "SHA-256"
     };
-    private final static String[] supportBS = new String[] {
+    private final static String[] SUPPORT_BS = new String[] {
             "BASE64"
     };
-    private final static String[] supportHm = new String[] {
+    private final static String[] SUPPORT_HM = new String[] {
             "HmacMD5",
             "HmacSHA1",
             "HmacSHA256"
+    };
+    private final static String[] SUPPORT_RSA = new String[] {
+            "RSA"
     };
 
     private final String[] supportCipher;
@@ -83,26 +86,31 @@ public class CipherForm extends JPanel{
     public CipherForm() {
         super(new FormLayout("f:d:g 10dlu 150dlu 10dlu f:d:g", "f:d:g"));
         cipherModels = new HashMap<>();
-        supportCipher = new String[supportBS.length + supportED.length + supportHm.length + supportMD.length];
-        for (int index=0,size=supportED.length; index < size; index++) {
-            cipherModels.put(supportED[index], new CipherModel(supportED[index]));
-            supportCipher[index] = supportED[index];
+        supportCipher = new String[SUPPORT_BS.length + SUPPORT_ED.length + SUPPORT_HM.length + SUPPORT_MD.length + SUPPORT_RSA.length];
+
+        for (int index=0,size=SUPPORT_ED.length; index < size; index++) {
+            cipherModels.put(SUPPORT_ED[index], new CipherModel(SUPPORT_ED[index]));
+            supportCipher[index] = SUPPORT_ED[index];
         }
-        for (int index=0, size=supportMD.length; index < size; index++) {
-            cipherModels.put(supportMD[index], new CipherBaseModel(2));
-            supportCipher[index + supportED.length] = supportMD[index];
+        int count = SUPPORT_ED.length;
+        for (int index=0, size=SUPPORT_MD.length; index < size; index++) {
+            cipherModels.put(SUPPORT_MD[index], new CipherBaseModel(2));
+            supportCipher[index + count] = SUPPORT_MD[index];
         }
-        for (int index=0, size=supportHm.length; index < size; index++) {
-            cipherModels.put(supportHm[index], new CipherBaseModel(4));
-            supportCipher[index + supportED.length + supportMD.length] = supportHm[index];
+        count += SUPPORT_MD.length;
+        for (int index=0, size=SUPPORT_HM.length; index < size; index++) {
+            cipherModels.put(SUPPORT_HM[index], new CipherBaseModel(4));
+            supportCipher[index + count] = SUPPORT_HM[index];
         }
-        for (int index=0, size=supportBS.length; index < size; index++) {
-            cipherModels.put(supportBS[index], new CipherBaseModel(3));
-            supportCipher[index + supportED.length + supportMD.length + supportHm.length] = supportBS[index];
+        count += SUPPORT_HM.length;
+        for (int index=0, size=SUPPORT_BS.length; index < size; index++) {
+            cipherModels.put(SUPPORT_BS[index], new CipherBaseModel(3));
+            supportCipher[index + count] = SUPPORT_BS[index];
         }
-//        supportCipher = tmpSupportCipher;
-        for (String tmps : supportCipher) {
-            System.out.println(tmps);
+        count += SUPPORT_BS.length;
+        for (int index=0, size=SUPPORT_RSA.length; index < size; index ++) {
+            cipherModels.put(SUPPORT_RSA[index], new CipherBaseModel(5));
+            supportCipher[index + count] = SUPPORT_RSA[index];
         }
         cipherType = new ComboBox(new DefaultComboBoxModel(supportCipher));
         this.cc.insets.set(2, 2, 2, 2);
@@ -148,12 +156,21 @@ public class CipherForm extends JPanel{
         startListener();
     }
 
-    private void showOptional(boolean keyState, boolean ivState, boolean btnState) {
+    private void showOptional(boolean keyState, boolean ivState, boolean btnState, boolean doubleKey) {
+        if (doubleKey) {
+            keyLabel.setText(PUBLIC_KEY);
+            ivLabel.setText(PRIVARE_KEY);
+        }
         keyLabel.setVisible(keyState);
         cipherKey.setVisible(keyState);
         ivLabel.setVisible(ivState);
         cipherIv.setVisible(ivState);
         decodeBtn.setVisible(btnState);
+
+    }
+
+    private void showOptional(boolean keyState, boolean ivState, boolean btnState) {
+        showOptional(keyState, ivState, btnState, false);
     }
 
     private void initHistText() {
@@ -196,6 +213,8 @@ public class CipherForm extends JPanel{
                     case 4:
                         showOptional(true, false, false);
                         break;
+                    case 5:
+                        showOptional(true, true, true, true);
                     default:
                         break;
                 }
@@ -263,6 +282,11 @@ public class CipherForm extends JPanel{
                     break;
                 case 4:
                     result = HmacUtil.encrypt(currOption, content, currKey);
+                    break;
+                case 5:
+                    result = isEncode ?
+                            RSAUtil.encrypt(content, currKey):
+                            RSAUtil.decrypt(content, currIv);
                     break;
                 default:
                     result = "";
