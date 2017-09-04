@@ -29,5 +29,23 @@ A simple encryption and decryption, encoding and decoding tool plugin. Support A
       </method>
     </configuration>
 ```
+*.iml在项目配置文件中修改项目类型为PLUGIN_MODULE，如下
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="PLUGIN_MODULE" version="4">
+  <component name="DevKit.ModuleBuildProperties" url="file://$MODULE_DIR$/resources/META-INF/plugin.xml" />
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/resources" type="java-resource" />
+      <excludePattern pattern="*.png" />
+    </content>
+    <orderEntry type="jdk" jdkName="IntelliJ IDEA Community Edition IC-172.2827.15" jdkType="IDEA JDK" />
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>
+```
 #### 注意事项
 在开发中发现很多次插件效果与代码很不匹配的情况，可能是idea的缓存问题，如果无法去除缓存可以尝试清理相关文件
