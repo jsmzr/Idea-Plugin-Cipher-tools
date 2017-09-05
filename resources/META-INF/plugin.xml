@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>top.jsmzr.cipher.component.CipherTools</id>
   <name>Cipher tools</name>
-  <version>1.2</version>
+  <version>1.3</version>
 
   <description><![CDATA[
       This is an encryption and decryption tool,Supports symmetric encryption, asymmetric encryption, message digest and base64 encoding and decoding.
@@ -18,8 +18,9 @@
 
   <change-notes><![CDATA[
   <ul>
-    <li>add hmac  </li>
-    <li>add rsa </li>
+    <li>Add hmac  </li>
+    <li>Add rsa </li>
+    <li>Fix rsa decrypt. change all decrypt alg to support base64 cipherText</li>
   </ul>
   ]]>
   </change-notes>

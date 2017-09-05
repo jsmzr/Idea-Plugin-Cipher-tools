@@ -1,10 +1,12 @@
 package com.jsmzr.cipher.util;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Base64;
 
 public class CommonsConverter {
     private final static String HEX_STRING = "0123456789abcdef";
     private final static String DEFAULT_ENCODING = "utf-8";
+    private final static String BASE64_DIG = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/=+";
 
     public static String bytesToHexString(byte[] bytes) {
         if (bytes == null || bytes.length <= 0) {
@@ -64,5 +66,51 @@ public class CommonsConverter {
             throw new RuntimeException("bytes to utf-8 String failed");
         }
         return result;
+    }
+
+    public static boolean isHex(String data) {
+        if (data == null || "".equals(data.trim()) || data.length()%2 != 0) {
+            return false;
+        }
+        char[] chars = data.toCharArray();
+        for (char c : chars) {
+            if (c < '0' || (c > '9' && c < 'A') || (c > 'f' && c < 'a') || c> 'f') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean isBase64(String data) {
+        if (data == null || "".equals(data.trim())) {
+            return false;
+        }
+        int size = data.length();
+        int mod = size % 4;
+        if ((mod == 1) ||
+                (mod == 2 && "=".equals(data.substring(size-1))) ||
+                (mod == 3 && "==".equals(data.substring(size-2)))) {
+            return false;
+        }
+        if (mod != 0) {
+            data += 2 == mod ? "==" : "=";
+        }
+        for (int index=0, len=data.length(); index < len; index++) {
+            if (!BASE64_DIG.contains(data.substring(index, index+1))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static byte[] cipherTextConvert(String data) {
+        if (isHex(data)) {
+            return hexStringToByte(data);
+        }
+        if (isBase64(data)) {
+            return Base64.getDecoder().decode(data);
+        }else {
+            throw new RuntimeException("can't resolve cipherText coding");
+        }
     }
 }

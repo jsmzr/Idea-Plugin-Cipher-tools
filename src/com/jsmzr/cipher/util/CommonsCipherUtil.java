@@ -17,7 +17,7 @@ public class CommonsCipherUtil {
     }
 
     public static String decrypt(CipherModel alg, String content, String key, String iv) {
-        byte[] contentBytes = CommonsConverter.hexStringToByte(content);
+        byte[] contentBytes = CommonsConverter.cipherTextConvert(content);
         return CommonsConverter.bytesToString(doFinal(false, alg, contentBytes, key, iv, contentBytes.length));
     }
 

@@ -2,6 +2,7 @@
 A simple encryption and decryption, encoding and decoding tool plugin. Support AES, DES, 3DES and so on
 
 这是一个简单的加密解密、编码解码工具插件，可以安装到idea、android studio，只是做了简单的封装。
+> 在idea、android studio中安装，在plugin中选择Browse Repositories，搜索Cipher tools即可下载安装。
 
 - MD5/SHA-1/SHA-256
 - AES/RSA/DES/3DES
@@ -49,4 +50,7 @@ A simple encryption and decryption, encoding and decoding tool plugin. Support A
 </module>
 ```
 #### 注意事项
-在开发中发现很多次插件效果与代码很不匹配的情况，可能是idea的缓存问题，如果无法去除缓存可以尝试清理相关文件
+1. 在开发中发现很多次插件效果与代码很不匹配的情况，可能是idea的缓存问题，如果无法去除缓存可以尝试清理相关文件
+2. 插件中提供的加密、解密(编码、解码)均建立在jdk的基础上，1.8以下版本不兼容。
+3. 解密方式中，密文可以是16进制字符串、或者是密文字节数组base64编码后的字符串。如果密文不能正确的辨别为hexString或base64,将不能正确的解密
+4. 加密结果均为16进制字符串，如需转换为base64应先将hexString转换为byte[]

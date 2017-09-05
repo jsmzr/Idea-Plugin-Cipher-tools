@@ -9,7 +9,6 @@ import java.util.Base64;
 
 public class RSAUtil {
     private final static String RSA_ALG = "RSA";
-    private final static String HEX_DIG = "0123456789ABCDEFabcdef";
 
     public static String encrypt(String data, String publicKey) {
         byte[] bytes = doFinal(true, data, publicKey);
@@ -22,8 +21,15 @@ public class RSAUtil {
     }
 
     private static byte[] doFinal(boolean isEncrypt, String data, String key) {
-        byte[] keyBytes = convetKey(key);
-        byte[] dataBytes = CommonsConverter.stringToBytes(data);
+        byte[] keyBytes =   CommonsConverter.isHex(key) ?
+                CommonsConverter.hexStringToByte(key):
+                CommonsConverter.isBase64(key) ?
+                        Base64.getDecoder().decode(key) :
+                        CommonsConverter.stringToBytes(key);
+
+        byte[] dataBytes = isEncrypt ?
+                CommonsConverter.stringToBytes(data) :
+                CommonsConverter.cipherTextConvert(data);
         Key secKey;
         try {
             KeyFactory keyFactory = KeyFactory.getInstance(RSA_ALG);
@@ -41,21 +47,5 @@ public class RSAUtil {
         }catch (Exception e) {
             throw new RuntimeException("encrypt error: " + e.getMessage());
         }
-    }
-
-    private static byte[] convetKey(String key) {
-        if (key == null || "".equals(key.trim())) {
-            throw new RuntimeException("key is null");
-        }
-        boolean isPem = false;
-        for (int index=0, size=key.length(); index<size; index++) {
-            if (!HEX_DIG.contains(key.substring(index, index+1))){
-                isPem = true;
-                break;
-            }
-        }
-        return isPem ?
-                Base64.getDecoder().decode(key) :
-                CommonsConverter.hexStringToByte(key);
     }
 }
